@@ -1,0 +1,37 @@
+{
+    "name": "digdug",
+    "displayName": "Dig Dug",
+    "description": "Namco Dig Dug Compatible Gateware IP Core for FPGA",
+    "author": "boogermann",
+    "version": "0.1.0",
+    "license": "GPL-3.0-or-later",
+    "repository": "https://github.com/opengateware/arcade-digdug",
+    "keywords": [
+        "namco",
+        "digdug",
+        "vertical",
+        "arcade",
+        "1982",
+        "ecosystem:gateman"
+    ],
+    "scripts": {
+        "verilator": "echo \"Error: no simulation specified\" && exit 1"
+    },
+    "hardware": {
+        "id": "digdug",
+        "name": "Dig Dug",
+        "year": 1982,
+        "manufacturer": "Namco"
+    },
+    "platforms": {
+        "pocket": "1.1.0"
+    },
+    "modules": {
+        "arcade-highscore": "0.1.4",
+        "dataloader-pocket": "1.0.0",
+        "generic-dpram": "1.0.0",
+        "generic-pause": "0.2.0",
+        "mb88xx": "0.3.0",
+        "tv80": "1.0.0"
+    }
+}

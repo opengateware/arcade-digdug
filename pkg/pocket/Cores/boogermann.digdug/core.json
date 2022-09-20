@@ -1,0 +1,36 @@
+{
+    "core": {
+        "magic": "APF_VER_1",
+        "metadata": {
+            "platform_ids": [
+                "digdug"
+            ],
+            "shortname": "digdug",
+            "description": "Namco Dig Dug Compatible Gateware IP Core for FPGA",
+            "author": "boogermann",
+            "url": "https://github.com/opengateware/arcade-digdug",
+            "version": "<%- VERSION %>",
+            "date_release": "<%- RELEASE_DATE %>"
+        },
+        "framework": {
+            "target_product": "Analogue Pocket",
+            "version_required": "1.1",
+            "sleep_supported": false,
+            "dock": {
+                "supported": true,
+                "analog_output": false
+            },
+            "hardware": {
+                "link_port": false,
+                "cartridge_adapter": -1
+            }
+        },
+        "cores": [
+            {
+                "name": "default",
+                "id": 0,
+                "filename": "bitstream.rbf_r"
+            }
+        ]
+    }
+}

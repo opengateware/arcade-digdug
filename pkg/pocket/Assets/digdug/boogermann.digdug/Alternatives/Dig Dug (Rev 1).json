@@ -1,0 +1,21 @@
+{
+    "instance": {
+        "magic": "APF_VER_1",
+        "variant_select": {
+            "id": 777,
+            "select": false
+        },
+        "data_slots": [
+            {
+                "id": 1,
+                "filename": "digdug1.rom"
+            }
+        ],
+        "memory_writes": [
+            {
+                "address": "0xFEEDC0DE",
+                "data": 0
+            }
+        ]
+    }
+}

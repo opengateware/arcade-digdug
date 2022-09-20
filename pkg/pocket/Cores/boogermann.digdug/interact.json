@@ -1,0 +1,115 @@
+{
+    "interact": {
+        "magic": "APF_VER_1",
+        "variables": [
+            {
+                "name": "Reset Core",
+                "id": 1,
+                "type": "action",
+                "enabled": true,
+                "address": "0x10000000",
+                "value": 1
+            },
+            {
+                "name": "Service Mode",
+                "id": 2,
+                "type": "check",
+                "enabled": true,
+                "address": "0x10010000",
+                "defaultval": 0,
+                "value": 1
+            },
+            {
+                "name": "Easy *",
+                "id": 3,
+                "type": "radio",
+                "group": 100,
+                "enabled": true,
+                "persist": true,
+                "address": "0x10020000",
+                "defaultval": 0,
+                "value": 0,
+                "mask": "0xFFFFFF00"
+            },
+            {
+                "name": "Medium",
+                "id": 4,
+                "type": "radio",
+                "group": 100,
+                "enabled": true,
+                "persist": true,
+                "address": "0x10020000",
+                "value": "0x2",
+                "mask": "0xFFFFFF00"
+            },
+            {
+                "name": "Hard",
+                "id": 5,
+                "type": "radio",
+                "group": 100,
+                "enabled": true,
+                "persist": true,
+                "address": "0x10020000",
+                "value": "0x1",
+                "mask": "0xFFFFFF00"
+            },
+            {
+                "name": "Hardest",
+                "id": 6,
+                "type": "radio",
+                "group": 100,
+                "enabled": true,
+                "persist": true,
+                "address": "0x10020000",
+                "value": "0x3",
+                "mask": "0xFFFFFF00"
+            },
+            {
+                "name": "3 Lives *",
+                "id": 9,
+                "type": "radio",
+                "group": 101,
+                "enabled": true,
+                "persist": true,
+                "address": "0x10030000",
+                "defaultval": "0x1",
+                "value": "0x1",
+                "mask": "0xFFFFFF00"
+            },
+            {
+                "name": "1 Live",
+                "id": 7,
+                "type": "radio",
+                "group": 101,
+                "enabled": true,
+                "persist": true,
+                "address": "0x10030000",
+                "value": "0x0",
+                "mask": "0xFFFFFF00"
+            },
+            {
+                "name": "2 Lives",
+                "id": 8,
+                "type": "radio",
+                "group": 101,
+                "enabled": true,
+                "persist": true,
+                "address": "0x10030000",
+                "value": "0x2",
+                "mask": "0xFFFFFF00"
+            },
+            {
+                "name": "5 Lives",
+                "id": 10,
+                "type": "radio",
+                "group": 101,
+                "enabled": true,
+                "persist": true,
+                "address": "0x10030000",
+                "value": "0x3",
+                "mask": "0xFFFFFF00"
+            }
+        ],
+        "messages": []
+    }
+}

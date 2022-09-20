@@ -1,0 +1,128 @@
+################################################################################
+# SPDX-License-Identifier: CC0-1.0
+# SPDX-FileType: OTHER
+# SPDX-FileCopyrightText: (c) 2022, OpenGateware authors and contributors
+################################################################################
+name: Build/Release
+################################################################################
+# How to create a tag to launch the workflow
+# git tag -a "0.1.0" -m "Release v0.1.0"
+# git push origin --tags
+################################################################################
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
+################################################################################
+jobs:
+  synthesis:
+    runs-on: ubuntu-latest
+    env:
+      CORE: digdug
+      DISPLAY_NAME: "Namco Dig Dug"
+      CATEGORY: arcade
+      AUTHOR: boogermann
+      TARGET: pocket
+      STAGE_FOLDER: staging
+      RELEASE_FOLDER: release
+      RECIPE_FOLDER: rom-recipes
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RAETRO_WEBHOOK: ${{ secrets.RAETRO_WEBHOOK }}
+      FPGAGAMING_WEBHOOK: ${{ secrets.FPGAGAMING_WEBHOOK }}
+
+    steps:
+      - name: "🧰 Checkout Repository"
+        uses: actions/checkout@v3
+
+      - name: "🏗️ Compile Design"
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/build raetro/quartus:pocket \
+          quartus_sh --flow compile projects/${CORE}_${TARGET}.qpf
+
+      - name: "🟦 Staging Files for Release"
+        if: startsWith(github.ref, 'refs/tags/')
+        id: stage
+        run: |
+          ############################################################
+          # Create Tags
+          ############################################################
+          VERSION=${GITHUB_REF#refs/*/}
+          DATE=$(date +'%Y-%m-%d')
+          CORE_FOLDER=${AUTHOR}.${CORE}
+          RBF_FILE=${CORE}_${TARGET}.rbf
+          echo ::set-output name=VERSION::${VERSION}
+          echo ::set-output name=REPO::${CATEGORY}-${CORE}
+          echo ::set-output name=TITLE::${DISPLAY_NAME}
+          echo ::set-output name=RELEASE_FOLDER::${RELEASE_FOLDER}
+          echo ::set-output name=RELEASE_FILE::${CORE_FOLDER}_${TARGET}-${VERSION}.zip
+          echo ::set-output name=RECIPE_FILE::${CORE_FOLDER}_rom-recipes-${VERSION}.zip
+          ############################################################
+          # Clear/Create Folders
+          ############################################################
+          rm -rf ${STAGE_FOLDER} ${RELEASE_FOLDER}
+          mkdir -p ${STAGE_FOLDER} ${RELEASE_FOLDER}
+          ############################################################
+          # Copy Packaging Folder
+          ############################################################
+          cp -R pkg/${TARGET}/* ${STAGE_FOLDER}
+          ############################################################
+          # Clear git and png source files
+          ############################################################
+          find ./${STAGE_FOLDER} -type f \( -name "*.png*" -o -name "*.gitkeep*" \) -delete;
+          ############################################################
+          # Update core.json Version and Release Date
+          ############################################################
+          sed -i -e "s/<%- VERSION %>/${VERSION}/g" -e "s/<%- RELEASE_DATE %>/${DATE}/g" ${STAGE_FOLDER}/Cores/${CORE_FOLDER}/core.json
+          ############################################################
+          # Reverse Bitstream
+          ############################################################
+          wget https://gist.githubusercontent.com/boogermann/fba1f59c87f9c8c9404cc68878b4eb1a/raw/7e93a3560902e0136dcb29fa6c41d06f06d78fb2/reverse_bits.c
+          g++ reverse_bits.c -o reverse_bits
+          ./reverse_bits projects/output_files/${RBF_FILE} ${STAGE_FOLDER}/Cores/${CORE_FOLDER}/bitstream.rbf_r
+
+      - name: "📦 Create Distribution Files"
+        if: startsWith(github.ref, 'refs/tags/')
+        id: zip
+        run: |
+          pushd ./${STAGE_FOLDER}
+          zip -r ../${RELEASE_FOLDER}/${{ steps.stage.outputs.RELEASE_FILE }} .
+          popd
+          pushd ./pkg/${RECIPE_FOLDER}
+          zip -r ../../${RELEASE_FOLDER}/${{ steps.stage.outputs.RECIPE_FILE }} .
+          popd
+
+      - name: "🚀 Create a new GitHub Release"
+        uses: softprops/action-gh-release@v0.1.14
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: Release v${{ steps.stage.outputs.VERSION }}
+          files: |
+            ${{ steps.stage.outputs.RELEASE_FOLDER }}/*
+
+      - name: "📢 Send Discord Announcements"
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          declare -a StringArray=("${RAETRO_WEBHOOK}" "${FPGAGAMING_WEBHOOK}")
+          for webhook_url in ${StringArray[@]}; do
+              curl \
+              -H "Content-Type: application/json" \
+              -d '{
+                  "username": "OpenGateware",
+                  "avatar_url": "https://avatars.githubusercontent.com/u/112050328",
+                  "embeds": [{
+                      "color": 2021216,
+                      "title": "A new core stable release is available for the Pocket",
+                      "thumbnail": { "url": "https://github.com/opengateware/${{ steps.stage.outputs.REPO }}/raw/master/docs/git-social.jpg" },
+                      "fields": [
+                          { "name": "Title", "value": "[${{ steps.stage.outputs.TITLE }}](https://github.com/opengateware/${{ steps.stage.outputs.REPO }}/)", "inline": true },
+                          { "name": "Version", "value": "[${{ steps.stage.outputs.VERSION }}](https://github.com/opengateware/${{ steps.stage.outputs.REPO }}/releases/tag/${{ steps.stage.outputs.VERSION }})", "inline": true },
+                          { "name": "Category", "value": "Arcade" },
+                          { "name": "Developer", "value": "[Boogermann](https://github.com/boogermann)" },
+                          { "name": "Download Core", "value": "[${{ steps.stage.outputs.RELEASE_FILE }}](https://github.com/opengateware/${{ steps.stage.outputs.REPO }}/releases/download/${{ steps.stage.outputs.VERSION }}/${{ steps.stage.outputs.RELEASE_FILE }})" },
+                          { "name": "Download ROM Recipes", "value": "[${{ steps.stage.outputs.RECIPE_FILE }}](https://github.com/opengateware/${{ steps.stage.outputs.REPO }}/releases/download/${{ steps.stage.outputs.VERSION }}/${{ steps.stage.outputs.RECIPE_FILE }})" },
+                          { "name": "Previous Releases", "value": "[https://github.com/opengateware/${{ steps.stage.outputs.REPO }}/releases](https://github.com/opengateware/${{ steps.stage.outputs.REPO }}/releases)" }
+                      ]
+                  }]
+                  }' \
+              $webhook_url
+          done

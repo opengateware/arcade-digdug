@@ -1,0 +1,21 @@
+# ==============================================================================
+# RTL
+# ==============================================================================
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) "digdug.v"]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) "DIGDUG_CORES.v"]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) "DIGDUG_CUSIO.v"]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) "DIGDUG_IODEV.v"]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) "DIGDUG_SPRITE.v"]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) "DIGDUG_VIDEO.v"]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) "cpucore.v"]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) "dprams.v"]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) "hvgen.v"]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) "wsg.v"]
+
+# ==============================================================================
+# MODULES
+# ==============================================================================
+set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) "../modules/dataloader-pocket/index.qip"]
+set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) "../modules/generic-dpram/index.qip"]
+set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) "../modules/generic-pause/index.qip"]
+set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) "../modules/TV80/index.qip"]
